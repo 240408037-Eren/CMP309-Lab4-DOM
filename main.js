@@ -59,3 +59,48 @@ function renderTasks() {
     taskList.appendChild(taskDiv);
   });
 }
+
+/**
+ * Handles the Load Tasks button click event.
+ * Uses async/await with try/catch error handling,
+ * performs JSON serialization round-trip, creates Task instances,
+ * updates TaskManager, and triggers DOM render.
+ */
+async function handleLoadTasks() {
+  try {
+    // 1. Update UI to loading state
+    statusMessage.textContent = "Loading tasks...";
+    loadTasksBtn.disabled = true;
+
+    // 2. Fetch raw task data asynchronously
+    const rawData = await fetchTasks();
+
+    // 3. JSON Handling Requirement: stringify -> parse round trip
+    const serializedJson = JSON.stringify(rawData);
+    const parsedData = JSON.parse(serializedJson);
+
+    // 4. Instantiate Task domain objects from parsed JSON
+    const taskInstances = parsedData.map(
+      (item) => new Task(item.id, item.title, item.completed)
+    );
+
+    // 5. Store in TaskManager immutably
+    taskManager.setTasks(taskInstances);
+
+    // 6. Render tasks to DOM
+    renderTasks();
+
+    // 7. Clear status message upon success
+    statusMessage.textContent = "";
+  } catch (error) {
+    statusMessage.textContent = "Error: Failed to load tasks from server.";
+    console.error("Task fetch error:", error);
+  } finally {
+    loadTasksBtn.disabled = false;
+  }
+}
+
+// Bind event listener to Load Tasks button
+if (loadTasksBtn) {
+  loadTasksBtn.addEventListener("click", handleLoadTasks);
+}
