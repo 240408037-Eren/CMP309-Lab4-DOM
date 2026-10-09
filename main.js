@@ -12,7 +12,7 @@ const taskList = document.getElementById("taskList");
  * using document.createElement and appendChild.
  */
 function renderTasks() {
-  // Clear previous rendered tasks
+  // Clear previous rendered tasks safely
   taskList.replaceChildren();
 
   taskManager.tasks.forEach((task) => {
@@ -34,11 +34,19 @@ function renderTasks() {
     const toggleBtn = document.createElement("button");
     toggleBtn.className = "toggle-btn";
     toggleBtn.textContent = "Toggle";
+    toggleBtn.addEventListener("click", () => {
+      taskManager.toggleTask(task.id);
+      renderTasks();
+    });
 
     // 5. Delete button
     const deleteBtn = document.createElement("button");
     deleteBtn.className = "delete-btn";
     deleteBtn.textContent = "Delete";
+    deleteBtn.addEventListener("click", () => {
+      taskManager.removeTask(task.id);
+      renderTasks();
+    });
 
     // Assemble buttons and task div
     btnGroup.appendChild(toggleBtn);
